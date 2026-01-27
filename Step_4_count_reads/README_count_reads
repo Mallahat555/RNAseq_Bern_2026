@@ -1,0 +1,24 @@
+This is step by step instruciton on how to count reads per gene per sample
+
+featureCounts version: 2.0.6
+
+1. Preparation
+    1.1 Prepare appropriate project tree:
+     My tree is in /data/users/apiatkowska/RNAseq/   directory:
+
+        Step_4_count_reads/
+            reads_per_gene_per_sample/
+            logs/
+
+    1.2 Unzipp GFT and FASTA files if you havent done it yet:
+
+    gunzip -k /data/users/apiatkowska/RNAseq/Step_3_map_reads/reference_genome_and_annotations/Mus_musculus.GRCm39.dna.primary_assembly.fa.gz
+    -k keeps the original zipped file instead of deleting it
+
+    gunzip -k /data/users/apiatkowska/RNAseq/Step_3_map_reads/reference_genome_and_annotations/Mus_musculus.GRCm39.115.gtf.gz
+
+2. Count reads per gene per sample
+    sbatch run_count_reads_per_gene_for_all_samples.slurm
+
+
+

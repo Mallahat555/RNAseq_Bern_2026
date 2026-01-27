@@ -1,0 +1,16 @@
+Step_2_fastQC/fastQC_results/
+Step_2_fastQC/multiQC_results/
+Step_2.2_trimmed_fastQ/individual_fastP_quality_control_reports
+Step_2.2_trimmed_fastQ/multiQC_fastp_results
+Step_2.2_trimmed_fastQ/trimmed_fastQ
+Step_3_map_reads/hisat2_indexing
+Step_3_map_reads/mapped_reads/bam
+Step_3_map_reads/mapped_reads/bam_sorted
+Step_3_map_reads/mapped_reads/logs
+Step_3_map_reads/mapped_reads/sam
+Step_3_map_reads/mapped_reads_small_regions_IGV/bam_sorted_small_reads
+Step_3_map_reads/mapped_reads_small_regions_IGV/logs
+Step_3_map_reads/reference_genome_and_annotations
+Step_4_count_reads/logs
+Step_4_count_reads/reads_per_gene_per_sample
+Step_5_data_analysis/tables_of_counts_for_DESeq2/*_counts.txt
