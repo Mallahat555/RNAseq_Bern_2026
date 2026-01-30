@@ -1,0 +1,9 @@
+
+  /// MultiQC 🔍 | v1.19
+
+|           multiqc | Search path : /data_trimmed_fastq
+|         searching | ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 60/60  
+|             fastp | Found 15 reports
+|           multiqc | Report      : multiQC_fastp_results/multiqc_trimmed_fastq_report.html
+|           multiqc | Data        : multiQC_fastp_results/multiqc_trimmed_fastq_report_data
+|           multiqc | MultiQC complete

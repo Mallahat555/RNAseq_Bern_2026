@@ -1,0 +1,16 @@
+Module	Section	Sample Name	Source
+fastp	all_sections	SRR7821971_1	/data_trimmed_fastq/SRR7821971_fastp.json
+fastp	all_sections	SRR7821955_1	/data_trimmed_fastq/SRR7821955_fastp.json
+fastp	all_sections	SRR7821951_1	/data_trimmed_fastq/SRR7821951_fastp.json
+fastp	all_sections	SRR7821953_1	/data_trimmed_fastq/SRR7821953_fastp.json
+fastp	all_sections	SRR7821969_1	/data_trimmed_fastq/SRR7821969_fastp.json
+fastp	all_sections	SRR7821973_1	/data_trimmed_fastq/SRR7821973_fastp.json
+fastp	all_sections	SRR7821954_1	/data_trimmed_fastq/SRR7821954_fastp.json
+fastp	all_sections	SRR7821957_1	/data_trimmed_fastq/SRR7821957_fastp.json
+fastp	all_sections	SRR7821952_1	/data_trimmed_fastq/SRR7821952_fastp.json
+fastp	all_sections	SRR7821968_1	/data_trimmed_fastq/SRR7821968_fastp.json
+fastp	all_sections	SRR7821972_1	/data_trimmed_fastq/SRR7821972_fastp.json
+fastp	all_sections	SRR7821956_1	/data_trimmed_fastq/SRR7821956_fastp.json
+fastp	all_sections	SRR7821950_1	/data_trimmed_fastq/SRR7821950_fastp.json
+fastp	all_sections	SRR7821949_1	/data_trimmed_fastq/SRR7821949_fastp.json
+fastp	all_sections	SRR7821970_1	/data_trimmed_fastq/SRR7821970_fastp.json

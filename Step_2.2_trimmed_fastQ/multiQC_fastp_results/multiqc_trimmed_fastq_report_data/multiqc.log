@@ -1,0 +1,36 @@
+[2026-01-18 12:05:22,340] multiqc                                            [DEBUG  ]  This is MultiQC v1.19
+[2026-01-18 12:05:22,341] multiqc                                            [DEBUG  ]  Command used: /usr/local/bin/multiqc /data_trimmed_fastq --outdir /data/users/apiatkowska/RNAseq/Step_2.2_trimmed_fastQ/multiQC_fastp_results --filename multiqc_trimmed_fastq_report.html --force
+[2026-01-18 12:05:22,398] multiqc                                            [DEBUG  ]  Could not connect to multiqc.info for version check: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1006)>
+[2026-01-18 12:05:22,398] multiqc                                            [DEBUG  ]  Working dir : /data/users/apiatkowska/RNAseq/Step_2.2_trimmed_fastQ
+[2026-01-18 12:05:22,398] multiqc                                            [DEBUG  ]  Template    : default
+[2026-01-18 12:05:22,398] multiqc                                            [DEBUG  ]  Running Python 3.11.7 | packaged by conda-forge | (main, Dec 15 2023, 08:38:37) [GCC 12.3.0]
+[2026-01-18 12:05:22,398] multiqc                                            [DEBUG  ]  Analysing modules: custom_content, ccs, ngsderive, purple, conpair, lima, peddy, somalier, methylQA, mosdepth, phantompeakqualtools, qualimap, preseq, hifiasm, quast, qorts, rna_seqc, rockhopper, rsem, rseqc, busco, bustools, goleft_indexcov, gffcompare, disambiguate, supernova, deeptools, sargasso, verifybamid, mirtrace, happy, mirtop, sambamba, gopeaks, homer, hops, macs2, theta2, snpeff, gatk, htseq, bcftools, featureCounts, fgbio, dragen, dragen_fastqc, dedup, pbmarkdup, damageprofiler, mapdamage, biobambam2, jcvi, mtnucratio, picard, vep, bakta, prokka, qc3C, nanostat, samblaster, samtools, sexdeterrmine, seqera_cli, eigenstratdatabasetools, bamtools, jellyfish, vcftools, longranger, stacks, varscan2, snippy, umitools, truvari, bbmap, bismark, biscuit, diamond, hicexplorer, hicup, hicpro, salmon, kallisto, slamdunk, star, hisat2, tophat, bowtie2, bowtie1, cellranger, snpsplit, odgi, pangolin, nextclade, freyja, humid, kat, leehom, librarian, adapterRemoval, bbduk, clipandmerge, cutadapt, flexbar, sourmash, kaiju, bracken, kraken, malt, motus, trimmomatic, sickle, skewer, sortmerna, biobloomtools, fastq_screen, afterqc, fastp, fastqc, filtlong, prinseqplusplus, pychopper, porechop, pycoqc, minionqc, anglerfish, multivcfanalyzer, clusterflow, checkqc, bcl2fastq, bclconvert, interop, ivar, flash, seqyclean, optitype, whatshap, xenome, xengsort
+[2026-01-18 12:05:22,399] multiqc                                            [DEBUG  ]  Using temporary directory for creating report: /scratch/16146274/tmpzty81v5t
+[2026-01-18 12:05:22,402] multiqc                                            [INFO   ]  Search path : /data_trimmed_fastq
+[2026-01-18 12:05:22,623] multiqc                                            [DEBUG  ]  Summary of files that were skipped by the search: [skipped_module_specific_max_filesize: 135] // [skipped_no_match: 45] // [skipped_ignore_pattern: 30]
+[2026-01-18 12:05:23,463] multiqc.plots.bargraph                             [DEBUG  ]  Using matplotlib version 3.8.2
+[2026-01-18 12:05:23,469] multiqc.plots.linegraph                            [DEBUG  ]  Using matplotlib version 3.8.2
+[2026-01-18 12:05:23,470] multiqc                                            [DEBUG  ]  No samples found: custom_content
+[2026-01-18 12:05:23,500] multiqc.modules.fastp.fastp                        [INFO   ]  Found 15 reports
+[2026-01-18 12:05:23,500] multiqc.modules.fastp.fastp                        [DEBUG  ]  No duplication rate plot data: SRR7821971_1
+[2026-01-18 12:05:23,501] multiqc.modules.fastp.fastp                        [DEBUG  ]  No duplication rate plot data: SRR7821955_1
+[2026-01-18 12:05:23,501] multiqc.modules.fastp.fastp                        [DEBUG  ]  No duplication rate plot data: SRR7821951_1
+[2026-01-18 12:05:23,501] multiqc.modules.fastp.fastp                        [DEBUG  ]  No duplication rate plot data: SRR7821953_1
+[2026-01-18 12:05:23,501] multiqc.modules.fastp.fastp                        [DEBUG  ]  No duplication rate plot data: SRR7821969_1
+[2026-01-18 12:05:23,502] multiqc.modules.fastp.fastp                        [DEBUG  ]  No duplication rate plot data: SRR7821973_1
+[2026-01-18 12:05:23,502] multiqc.modules.fastp.fastp                        [DEBUG  ]  No duplication rate plot data: SRR7821954_1
+[2026-01-18 12:05:23,502] multiqc.modules.fastp.fastp                        [DEBUG  ]  No duplication rate plot data: SRR7821957_1
+[2026-01-18 12:05:23,503] multiqc.modules.fastp.fastp                        [DEBUG  ]  No duplication rate plot data: SRR7821952_1
+[2026-01-18 12:05:23,503] multiqc.modules.fastp.fastp                        [DEBUG  ]  No duplication rate plot data: SRR7821968_1
+[2026-01-18 12:05:23,503] multiqc.modules.fastp.fastp                        [DEBUG  ]  No duplication rate plot data: SRR7821972_1
+[2026-01-18 12:05:23,504] multiqc.modules.fastp.fastp                        [DEBUG  ]  No duplication rate plot data: SRR7821956_1
+[2026-01-18 12:05:23,504] multiqc.modules.fastp.fastp                        [DEBUG  ]  No duplication rate plot data: SRR7821950_1
+[2026-01-18 12:05:23,504] multiqc.modules.fastp.fastp                        [DEBUG  ]  No duplication rate plot data: SRR7821949_1
+[2026-01-18 12:05:23,504] multiqc.modules.fastp.fastp                        [DEBUG  ]  No duplication rate plot data: SRR7821970_1
+[2026-01-18 12:05:23,553] multiqc.utils.software_versions                    [DEBUG  ]  Reading software versions from config.software_versions
+[2026-01-18 12:05:23,571] multiqc                                            [DEBUG  ]  Compressing plot data
+[2026-01-18 12:05:23,978] multiqc                                            [INFO   ]  Report      : multiQC_fastp_results/multiqc_trimmed_fastq_report.html
+[2026-01-18 12:05:23,978] multiqc                                            [INFO   ]  Data        : multiQC_fastp_results/multiqc_trimmed_fastq_report_data
+[2026-01-18 12:05:23,978] multiqc                                            [DEBUG  ]  Moving data file from '/scratch/16146274/tmpzty81v5t/multiqc_data' to '/data/users/apiatkowska/RNAseq/Step_2.2_trimmed_fastQ/multiQC_fastp_results/multiqc_trimmed_fastq_report_data'
+[2026-01-18 12:05:23,996] multiqc                                            [DEBUG  ]  Full report path: /data/users/apiatkowska/RNAseq/Step_2.2_trimmed_fastQ/multiQC_fastp_results/multiqc_trimmed_fastq_report.html
+[2026-01-18 12:05:24,074] multiqc                                            [INFO   ]  MultiQC complete

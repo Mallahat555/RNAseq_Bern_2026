@@ -1,0 +1,9 @@
+
+  /// MultiQC 🔍 | v1.19
+
+|           multiqc | Search path : /data/users/apiatkowska/RNAseq/Step_2_fastQC/fastQC_results
+|         searching | ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 60/60  
+|            fastqc | Found 30 reports
+|           multiqc | Report      : multiQC_results/multiqc_report.html
+|           multiqc | Data        : multiQC_results/multiqc_data
+|           multiqc | MultiQC complete
