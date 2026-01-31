@@ -174,8 +174,32 @@ pca_plot
 #--------------------------
 # Sample distance Heat map
 #--------------------------
+colData(vsd)
+
+library(RColorBrewer)
+library(pheatmap)
+
 sampleDists <- dist(t(assay(vsd)))
-pheatmap(as.matrix(sampleDists))
+sampleDistMatrix <- as.matrix(sampleDists)
+
+sampleLabels <- paste(
+  rownames(colData(vsd)),
+  colData(vsd)$group,
+  sep = " | "
+)
+
+rownames(sampleDistMatrix) <- sampleLabels
+colnames(sampleDistMatrix) <- sampleLabels
+
+colors <- colorRampPalette(rev(brewer.pal(9, "Blues")))(255)
+
+pheatmap(
+  sampleDistMatrix,
+  clustering_distance_rows = sampleDists,
+  clustering_distance_cols = sampleDists,
+  col = colors,
+  main = "Sample-to-sample distance heatmap"
+)
 
 #-----------------------------
 # Checking groups and contrast
@@ -188,67 +212,62 @@ levels(dds$group)
 # what pairwise comparisons are avaiable
 resultsNames(dds)
 
-# "Intercept"                                 
-# "group_Blood_DKO_Control_vs_Blood_DKO_Case"  ok
-# "group_Blood_WT_Case_vs_Blood_DKO_Case"      ok
-# "group_Blood_WT_Control_vs_Blood_DKO_Case"  not ok 
-#  I want:
-# "group_Blood_WT_Control_vs_Blood_WT_Case"  
-
 #----------
 # Contrasts
 #----------
 
-# Blood_WT_Case vs Blood_DKO_Case
-res_WT_case_vs_DKO_case <- results(
+# 1. WT Case vs WT Control (up in WT Case)
+res_WT_case_vs_WT_control <- results(
   dds,
-  contrast = c("group", "Blood_WT_Case", "Blood_DKO_Case")
+  contrast = c("group", "Blood_WT_Case", "Blood_WT_Control")
 )
 
-# Blood_DKO_Control vs Blood_DKO_Case
-res_DKO_control_vs_DKO_case <- results(
+# 2. DKO Case vs DKO Control (up in DKO Case)
+res_DKO_case_vs_DKO_control <- results(
   dds,
-  contrast = c("group", "Blood_DKO_Control", "Blood_DKO_Case")
+  contrast = c("group", "Blood_DKO_Case", "Blood_DKO_Control")
 )
 
-# Blood_WT_Control vs Blood_WT_Case
-res_WT_control_vs_WT_case <- results(
+# 3. DKO Case vs WT Case (up in DKO Case)
+res_DKO_case_vs_WT_case <- results(
   dds,
-  contrast = c("group", "Blood_WT_Control", "Blood_WT_Case")
+  contrast = c("group", "Blood_DKO_Case", "Blood_WT_Case")
 )
+
 
 #--------------------
 # Look at the results
 #--------------------
+
 #---------------------------------
-# Blood_WT_Case vs Blood_DKO_Case
+# 3. DKO Case vs WT Case (up in DKO Case)
 #---------------------------------
 
 # View first few genes
-head(res_WT_case_vs_DKO_case)
+head(res_DKO_case_vs_WT_case)
 
 # Open in RStudio table viewer
-View(res_WT_case_vs_DKO_case)
+View(res_DKO_case_vs_WT_case)
 
 # Column names
-colnames(res_WT_case_vs_DKO_case)
+colnames(res_DKO_case_vs_WT_case)
 
 #-------------------------------
 # Filter significant genes
 # padj < 0.05 and |log2FC| > 1
 #-------------------------------
-res_sig <- res_WT_case_vs_DKO_case[
-  !is.na(res_WT_case_vs_DKO_case$padj) &
-    res_WT_case_vs_DKO_case$padj < 0.05 &
-    abs(res_WT_case_vs_DKO_case$log2FoldChange) > 1,
+res_sig <- res_DKO_case_vs_WT_case[
+  !is.na(res_DKO_case_vs_WT_case$padj) &
+    res_DKO_case_vs_WT_case$padj < 0.05 &
+    abs(res_DKO_case_vs_WT_case$log2FoldChange) > 1,
 ]
 
 # Number of significant genes
 nrow(res_sig)
 
 # Up- vs down-regulated genes
-up_genes   <- sum(res_sig$log2FoldChange > 0)  # higher in WT_case
-down_genes <- sum(res_sig$log2FoldChange < 0)  # higher in DKO_case
+up_genes   <- sum(res_sig$log2FoldChange > 0)  # higher in DKO_case
+down_genes <- sum(res_sig$log2FoldChange < 0)  # higher in WT_case
 
 up_genes
 down_genes
@@ -256,16 +275,16 @@ down_genes
 #-------------------------------
 # Summary (all genes, for context)
 #-------------------------------
-summary(res_WT_case_vs_DKO_case, alpha = 0.05)
+summary(res_DKO_case_vs_WT_case, alpha = 0.05)
 
 #-------------------------------
 # MA plot
 #-------------------------------
 plotMA(
-  res_WT_case_vs_DKO_case,
+  res_DKO_case_vs_WT_case,
   xlab = "Mean normalized expression",
   ylab = "Log2 fold change",
-  main = "WT case vs DKO case"
+  main = "DKO Case vs WT Case"
 )
 
 #-------------------------------
@@ -273,38 +292,37 @@ plotMA(
 #-------------------------------
 write.csv(
   as.data.frame(res_sig),
-  file = "WT_case_vs_DKO_case_DESeq2_sig_genes.csv"
+  file = "DKO_case_vs_WT_case_DESeq2_sig_genes.csv"
 )
-
 #-------------------------------------
-# Blood_DKO_Control vs Blood_DKO_Case
+# 2. DKO Case vs DKO Control (up in DKO Case)
 #-------------------------------------
 
 # View first few genes
-head(res_DKO_control_vs_DKO_case)
+head(res_DKO_case_vs_DKO_control)
 
 # Open in RStudio table viewer
-View(res_DKO_control_vs_DKO_case)
+View(res_DKO_case_vs_DKO_control)
 
 # Column names
-colnames(res_DKO_control_vs_DKO_case)
+colnames(res_DKO_case_vs_DKO_control)
 
 #-------------------------------
 # Filter significant genes
 # padj < 0.05 and |log2FC| > 1
 #-------------------------------
-res_sig_DKO_control_vs_DKO_case <- res_DKO_control_vs_DKO_case[
-  !is.na(res_DKO_control_vs_DKO_case$padj) &
-    res_DKO_control_vs_DKO_case$padj < 0.05 &
-    abs(res_DKO_control_vs_DKO_case$log2FoldChange) > 1,
+res_sig_DKO_case_vs_DKO_control <- res_DKO_case_vs_DKO_control[
+  !is.na(res_DKO_case_vs_DKO_control$padj) &
+    res_DKO_case_vs_DKO_control$padj < 0.05 &
+    abs(res_DKO_case_vs_DKO_control$log2FoldChange) > 1,
 ]
 
 # Number of significant genes
-nrow(res_sig_DKO_control_vs_DKO_case)
+nrow(res_sig_DKO_case_vs_DKO_control)
 
 # Up- vs down-regulated genes
-up_genes_DKO   <- sum(res_sig_DKO_control_vs_DKO_case$log2FoldChange > 0)  # higher in DKO_Control
-down_genes_DKO <- sum(res_sig_DKO_control_vs_DKO_case$log2FoldChange < 0)  # higher in DKO_Case
+up_genes_DKO   <- sum(res_sig_DKO_case_vs_DKO_control$log2FoldChange > 0)  # higher in DKO_Case
+down_genes_DKO <- sum(res_sig_DKO_case_vs_DKO_control$log2FoldChange < 0)  # higher in DKO_Control
 
 up_genes_DKO
 down_genes_DKO
@@ -312,55 +330,55 @@ down_genes_DKO
 #-------------------------------
 # Summary (all genes, for context)
 #-------------------------------
-summary(res_DKO_control_vs_DKO_case, alpha = 0.05)
+summary(res_DKO_case_vs_DKO_control, alpha = 0.05)
 
 #-------------------------------
 # MA plot
 #-------------------------------
 plotMA(
-  res_DKO_control_vs_DKO_case,
+  res_DKO_case_vs_DKO_control,
   xlab = "Mean normalized expression",
   ylab = "Log2 fold change",
-  main = "DKO control vs DKO case"
+  main = "DKO Case vs DKO Control"
 )
 
 #-------------------------------
 # Save significant genes to CSV
 #-------------------------------
 write.csv(
-  as.data.frame(res_sig_DKO_control_vs_DKO_case),
-  file = "DKO_control_vs_DKO_case_DESeq2_sig_genes.csv"
+  as.data.frame(res_sig_DKO_case_vs_DKO_control),
+  file = "DKO_case_vs_DKO_control_DESeq2_sig_genes.csv"
 )
 
 #-------------------------------------
-# Blood_WT_Control vs Blood_WT_Case
+# 1. WT Case vs WT Control (up in WT Case)
 #-------------------------------------
 
 # View first few genes
-head(res_WT_control_vs_WT_case)
+head(res_WT_case_vs_WT_control)
 
 # Open in RStudio table viewer
-View(res_WT_control_vs_WT_case)
+View(res_WT_case_vs_WT_control)
 
 # Column names
-colnames(res_WT_control_vs_WT_case)
+colnames(res_WT_case_vs_WT_control)
 
 #-------------------------------
 # Filter significant genes
 # padj < 0.05 and |log2FC| > 1
 #-------------------------------
-res_sig_WT_control_vs_WT_case <- res_WT_control_vs_WT_case[
-  !is.na(res_WT_control_vs_WT_case$padj) &
-    res_WT_control_vs_WT_case$padj < 0.05 &
-    abs(res_WT_control_vs_WT_case$log2FoldChange) > 1,
+res_sig_WT_case_vs_WT_control <- res_WT_case_vs_WT_control[
+  !is.na(res_WT_case_vs_WT_control$padj) &
+    res_WT_case_vs_WT_control$padj < 0.05 &
+    abs(res_WT_case_vs_WT_control$log2FoldChange) > 1,
 ]
 
 # Number of significant genes
-nrow(res_sig_WT_control_vs_WT_case)
+nrow(res_sig_WT_case_vs_WT_control)
 
 # Up- vs down-regulated genes
-up_genes_WT   <- sum(res_sig_WT_control_vs_WT_case$log2FoldChange > 0)  # higher in WT_Control
-down_genes_WT <- sum(res_sig_WT_control_vs_WT_case$log2FoldChange < 0)  # higher in WT_Case
+up_genes_WT   <- sum(res_sig_WT_case_vs_WT_control$log2FoldChange > 0)  # higher in WT_Case
+down_genes_WT <- sum(res_sig_WT_case_vs_WT_control$log2FoldChange < 0)  # higher in WT_Control
 
 up_genes_WT
 down_genes_WT
@@ -368,59 +386,62 @@ down_genes_WT
 #-------------------------------
 # Summary (all genes, for context)
 #-------------------------------
-summary(res_WT_control_vs_WT_case, alpha = 0.05)
+summary(res_WT_case_vs_WT_control, alpha = 0.05)
 
 #-------------------------------
 # MA plot
 #-------------------------------
 plotMA(
-  res_WT_control_vs_WT_case,
+  res_WT_case_vs_WT_control,
   xlab = "Mean normalized expression",
   ylab = "Log2 fold change",
-  main = "WT control vs WT case"
+  main = "WT Case vs WT Control"
 )
 
 #-------------------------------
 # Save significant genes to CSV
 #-------------------------------
 write.csv(
-  as.data.frame(res_sig_WT_control_vs_WT_case),
-  file = "WT_control_vs_WT_case_DESeq2_sig_genes.csv"
+  as.data.frame(res_sig_WT_case_vs_WT_control),
+  file = "WT_case_vs_WT_control_DESeq2_sig_genes.csv"
 )
-
 #----------------------------
-# Functoin for Venn diagrams
+# Functions for Venn diagrams
 #----------------------------
 install.packages("VennDiagram")
 install.packages("gridExtra")  # usually already installed, but safe
-
-
-# Significant DE genes
-genes_WTcase_vs_DKOcase <- rownames(res_WT_case_vs_DKO_case[
-  !is.na(res_WT_case_vs_DKO_case$padj) &
-    res_WT_case_vs_DKO_case$padj < 0.05 &
-    abs(res_WT_case_vs_DKO_case$log2FoldChange) > 1,
-])
-
-genes_WTctrl_vs_WTcase <- rownames(res_WT_control_vs_WT_case[
-  !is.na(res_WT_control_vs_WT_case$padj) &
-    res_WT_control_vs_WT_case$padj < 0.05 &
-    abs(res_WT_control_vs_WT_case$log2FoldChange) > 1,
-])
-
-genes_DKOctrl_vs_DKOcase <- rownames(res_DKO_control_vs_DKO_case[
-  !is.na(res_DKO_control_vs_DKO_case$padj) &
-    res_DKO_control_vs_DKO_case$padj < 0.05 &
-    abs(res_DKO_control_vs_DKO_case$log2FoldChange) > 1,
-])
-
 library(VennDiagram)
 
+#-------------------------------
+# Significant DE genes (|log2FC|>1 & padj<0.05)
+#-------------------------------
+
+genes_WT_case_vs_WT_control <- rownames(res_WT_case_vs_WT_control[
+  !is.na(res_WT_case_vs_WT_control$padj) &
+    res_WT_case_vs_WT_control$padj < 0.05 &
+    abs(res_WT_case_vs_WT_control$log2FoldChange) > 1,
+])
+
+genes_DKO_case_vs_DKO_control <- rownames(res_DKO_case_vs_DKO_control[
+  !is.na(res_DKO_case_vs_DKO_control$padj) &
+    res_DKO_case_vs_DKO_control$padj < 0.05 &
+    abs(res_DKO_case_vs_DKO_control$log2FoldChange) > 1,
+])
+
+genes_DKO_case_vs_WT_case <- rownames(res_DKO_case_vs_WT_case[
+  !is.na(res_DKO_case_vs_WT_case$padj) &
+    res_DKO_case_vs_WT_case$padj < 0.05 &
+    abs(res_DKO_case_vs_WT_case$log2FoldChange) > 1,
+])
+
+#-------------------------------
+# Venn diagram for all significant DE genes
+#-------------------------------
 venn.plot <- venn.diagram(
   x = list(
-    WT_ctrl_vs_WT_case = genes_WTctrl_vs_WTcase,
-    DKO_ctrl_vs_DKO_case = genes_DKOctrl_vs_DKOcase,
-    WT_case_vs_DKO_case = genes_WTcase_vs_DKOcase
+    "WT Case vs WT Control"   = genes_WT_case_vs_WT_control,
+    "DKO Case vs DKO Control" = genes_DKO_case_vs_DKO_control,
+    "DKO Case vs WT Case"     = genes_DKO_case_vs_WT_case
   ),
   filename = NULL,
   fill = c("skyblue", "pink", "lightgreen"),
@@ -432,14 +453,31 @@ venn.plot <- venn.diagram(
 grid::grid.draw(venn.plot)
 
 #-------------------------------
-# UP-regulated genes
-# padj < 0.05 & log2FC > 1
+# UP-regulated genes (log2FC > 1)
 #-------------------------------
+up_WT_case_vs_WT_control <- rownames(res_WT_case_vs_WT_control[
+  !is.na(res_WT_case_vs_WT_control$padj) &
+    res_WT_case_vs_WT_control$padj < 0.05 &
+    res_WT_case_vs_WT_control$log2FoldChange > 1,
+])
+
+up_DKO_case_vs_DKO_control <- rownames(res_DKO_case_vs_DKO_control[
+  !is.na(res_DKO_case_vs_DKO_control$padj) &
+    res_DKO_case_vs_DKO_control$padj < 0.05 &
+    res_DKO_case_vs_DKO_control$log2FoldChange > 1,
+])
+
+up_DKO_case_vs_WT_case <- rownames(res_DKO_case_vs_WT_case[
+  !is.na(res_DKO_case_vs_WT_case$padj) &
+    res_DKO_case_vs_WT_case$padj < 0.05 &
+    res_DKO_case_vs_WT_case$log2FoldChange > 1,
+])
+
 venn_up <- venn.diagram(
   x = list(
-    "WT control vs. WT case"   = up_WTctrl_vs_WTcase,
-    "DKO control vs. DKO case" = up_DKOctrl_vs_DKOcase,
-    "WT case vs DKO case"  = up_WTcase_vs_DKOcase
+    "WT Case vs WT Control"   = up_WT_case_vs_WT_control,
+    "DKO Case vs DKO Control" = up_DKO_case_vs_DKO_control,
+    "DKO Case vs WT Case"     = up_DKO_case_vs_WT_case
   ),
   filename = NULL,
   fill = c("skyblue", "pink", "lightgreen"),
@@ -448,42 +486,39 @@ venn_up <- venn.diagram(
   cat.cex = 1.8,
   main = "Up-regulated genes",
   main.cex = 2,
-  cat.pos = c(-20, 20, 180),  # angles of labels for each set
-  cat.dist = c(0.05, 0.05, 0.05) # distance from circle
+  cat.pos = c(-20, 20, 180),
+  cat.dist = c(0.05, 0.05, 0.05)
 )
 
 grid::grid.newpage()
 grid::grid.draw(venn_up)
 
 #-------------------------------
-# DOWN-regulated genes
-# padj < 0.05 & log2FC > 1
+# DOWN-regulated genes (log2FC < -1)
 #-------------------------------
-
-down_WTctrl_vs_WTcase <- rownames(res_WT_control_vs_WT_case[
-  !is.na(res_WT_control_vs_WT_case$padj) &
-    res_WT_control_vs_WT_case$padj < 0.05 &
-    res_WT_control_vs_WT_case$log2FoldChange < -1,
+down_WT_case_vs_WT_control <- rownames(res_WT_case_vs_WT_control[
+  !is.na(res_WT_case_vs_WT_control$padj) &
+    res_WT_case_vs_WT_control$padj < 0.05 &
+    res_WT_case_vs_WT_control$log2FoldChange < -1,
 ])
 
-down_DKOctrl_vs_DKOcase <- rownames(res_DKO_control_vs_DKO_case[
-  !is.na(res_DKO_control_vs_DKO_case$padj) &
-    res_DKO_control_vs_DKO_case$padj < 0.05 &
-    res_DKO_control_vs_DKO_case$log2FoldChange < -1,
+down_DKO_case_vs_DKO_control <- rownames(res_DKO_case_vs_DKO_control[
+  !is.na(res_DKO_case_vs_DKO_control$padj) &
+    res_DKO_case_vs_DKO_control$padj < 0.05 &
+    res_DKO_case_vs_DKO_control$log2FoldChange < -1,
 ])
 
-down_WTcase_vs_DKOcase <- rownames(res_WT_case_vs_DKO_case[
-  !is.na(res_WT_case_vs_DKO_case$padj) &
-    res_WT_case_vs_DKO_case$padj < 0.05 &
-    res_WT_case_vs_DKO_case$log2FoldChange < -1,
+down_DKO_case_vs_WT_case <- rownames(res_DKO_case_vs_WT_case[
+  !is.na(res_DKO_case_vs_WT_case$padj) &
+    res_DKO_case_vs_WT_case$padj < 0.05 &
+    res_DKO_case_vs_WT_case$log2FoldChange < -1,
 ])
-
 
 venn_down <- venn.diagram(
   x = list(
-    "WT control vs. WT case"   = down_WTctrl_vs_WTcase,
-    "DKO control vs. DKO case" = down_DKOctrl_vs_DKOcase,
-    "WT case vs. DKO case"  = down_WTcase_vs_DKOcase
+    "WT Case vs WT Control"   = down_WT_case_vs_WT_control,
+    "DKO Case vs DKO Control" = down_DKO_case_vs_DKO_control,
+    "DKO Case vs WT Case"     = down_DKO_case_vs_WT_case
   ),
   filename = NULL,
   fill = c("skyblue", "pink", "lightgreen"),
@@ -492,8 +527,8 @@ venn_down <- venn.diagram(
   cat.cex = 1.8,
   main = "Down-regulated genes",
   main.cex = 2,
-  cat.pos = c(-20, 20, 180),  # angles of labels for each set
-  cat.dist = c(0.05, 0.05, 0.05) # distance from circle
+  cat.pos = c(-20, 20, 180),
+  cat.dist = c(0.05, 0.05, 0.05)
 )
 
 grid::grid.newpage()
@@ -538,15 +573,19 @@ genes_of_interest_ensembl <- as.character(gene_map)
 
 genes_of_interest_ensembl
 
-# sanity check
-genes_of_interest_ensembl %in% rownames(res_WT_control_vs_WT_case)
-# True gene will be labelled
-# False geneis not present 
+#-------------------------------
+# Check presence in DESeq2 results
+#-------------------------------
+genes_present <- list(
+  WT_Case_vs_WT_Control   = genes_of_interest_ensembl %in% rownames(res_WT_case_vs_WT_control),
+  DKO_Case_vs_DKO_Control = genes_of_interest_ensembl %in% rownames(res_DKO_case_vs_DKO_control),
+  DKO_Case_vs_WT_Case     = genes_of_interest_ensembl %in% rownames(res_DKO_case_vs_WT_case)
+)
 
-# check if DESeq row names are Ensembl IDs
-head(rownames(res_WT_control_vs_WT_case))
+# Name the TRUE/FALSE vector by gene symbols for clarity
+genes_present <- lapply(genes_present, function(x) { names(x) <- genes_of_interest; x })
 
-
+genes_present
 #-----------------------------------------
 # Gene labels: Ensembl ID -> Gene symbol
 #-----------------------------------------
@@ -679,35 +718,33 @@ plot_volcano_ensembl <- function(res,
 # Create volcano plots for each contrast
 #-----------------------------------------
 
-# 1. WT Control vs WT Case
+# 1. WT Case vs WT Control
 volcano_WT <- plot_volcano_ensembl(
-  res = res_WT_control_vs_WT_case,
-  title = "WT control vs WT case",
+  res = res_WT_case_vs_WT_control,
+  title = "WT case vs WT control",
   genes_of_interest = genes_of_interest_ensembl,
   label_df = label_map
 )
-
 volcano_WT
 
-# 2. DKO control vs DKO case
-
+# 2. DKO Case vs DKO Control
 volcano_DKO <- plot_volcano_ensembl(
-  res_DKO_control_vs_DKO_case,
-  title = "DKO control vs DKO case",
+  res = res_DKO_case_vs_DKO_control,
+  title = "DKO case vs DKO control",
   genes_of_interest = genes_of_interest_ensembl,
   label_df = label_map
 )
 volcano_DKO
 
-# 3. WT case vs DKO case
-
-volcano_WTvsDKO <- plot_volcano_ensembl(
-  res_WT_case_vs_DKO_case,
-  title = "WT case vs DKO case",
+# 3. DKO Case vs WT Case
+volcano_DKOvsWT <- plot_volcano_ensembl(
+  res = res_DKO_case_vs_WT_case,
+  title = "DKO case vs WT case",
   genes_of_interest = genes_of_interest_ensembl,
   label_df = label_map
 )
-volcano_WTvsDKO
+volcano_DKOvsWT
+
 
 #-------------------------------------------------
 # Extract normalised counts for genes of interest
@@ -773,6 +810,126 @@ ggplot(norm_counts_long, aes(x = group_clean, y = normalized_counts, color = gro
     legend.position = "none"
   )
 
+#-------------------------------------------------
+# Extract normalized counts for genes of interest
+#-------------------------------------------------
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(tibble)
+norm_counts <- counts(dds, normalized = TRUE)
+norm_counts_goi <- norm_counts[gene_map, ]
+
+norm_counts_long <- as.data.frame(norm_counts_goi) %>%
+  tibble::rownames_to_column(var = "ensembl_id") %>%
+  pivot_longer(
+    cols = -ensembl_id,
+    names_to = "sample",
+    values_to = "normalized_counts"
+  )
+
+norm_counts_long$gene <- label_map$symbol[match(norm_counts_long$ensembl_id, label_map$ensembl_id)]
+norm_counts_long$group <- colData[norm_counts_long$sample, "group"]
+norm_counts_long <- norm_counts_long %>%
+  mutate(group_clean = gsub("^Blood_", "", group),
+         group_clean = gsub("_", " ", group_clean),
+         group_clean = factor(group_clean, levels = c(
+           "WT Control", "WT Case", "DKO Control", "DKO Case"
+         )))
+
+#--------------------------------------------
+# Define comparisons
+#--------------------------------------------
+comparisons <- list(
+  c("WT Control", "WT Case"),
+  c("DKO Control", "DKO Case"),
+  c("WT Case", "DKO Case")
+)
+
+#--------------------------------------------
+# Compute Wilcoxon p-values and positions per gene
+#--------------------------------------------
+stat_results <- do.call(rbind, lapply(unique(norm_counts_long$gene), function(g) {
+  gene_data <- norm_counts_long %>% filter(gene == g)
+  
+  # max y for this gene
+  y_max <- max(gene_data$normalized_counts)
+  
+  # offsets for multiple comparisons per gene
+  offsets <- seq(0.05, 0.15, length.out = length(comparisons))
+  
+  # create data frame for all comparisons of this gene
+  df <- data.frame(
+    gene = g,
+    comp1 = sapply(comparisons, "[", 1),
+    comp2 = sapply(comparisons, "[", 2),
+    y_bracket = y_max * (1 + offsets),         # bracket line
+    y_signif = y_max * (1 + offsets + 0.02),  # asterisk/ns
+    y_pval   = y_max * (1 + offsets + 0.04)   # p-value above asterisk
+  )
+  
+  # compute p-values and significance
+  df <- df %>%
+    rowwise() %>%
+    mutate(
+      values1 = list(gene_data$normalized_counts[gene_data$group_clean == comp1]),
+      values2 = list(gene_data$normalized_counts[gene_data$group_clean == comp2]),
+      p_value = wilcox.test(unlist(values1), unlist(values2))$p.value,
+      signif = case_when(
+        p_value < 0.001 ~ "***",
+        p_value < 0.01  ~ "**",
+        p_value < 0.05  ~ "*",
+        TRUE            ~ "ns"
+      )
+    ) %>%
+    ungroup()
+  
+  return(df)
+}))
+
+#--------------------------------------------
+# Plot
+#--------------------------------------------
+ggplot(norm_counts_long, aes(x = group_clean, y = normalized_counts, color = group_clean)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.3) +
+  geom_jitter(width = 0.2, size = 2) +
+  facet_wrap(~ gene, scales = "free_y") +
+  # Bracket lines
+  geom_segment(data = stat_results,
+               aes(x = comp1, xend = comp2, y = y_bracket, yend = y_bracket),
+               inherit.aes = FALSE, color = "black") +
+  geom_segment(data = stat_results,
+               aes(x = comp1, xend = comp1, y = y_bracket, yend = y_bracket - 0.01 * y_bracket),
+               inherit.aes = FALSE, color = "black") +
+  geom_segment(data = stat_results,
+               aes(x = comp2, xend = comp2, y = y_bracket, yend = y_bracket - 0.01 * y_bracket),
+               inherit.aes = FALSE, color = "black") +
+  # Asterisk/ns
+  geom_text(data = stat_results,
+            aes(x = (as.numeric(factor(comp1, levels = levels(norm_counts_long$group_clean))) +
+                       as.numeric(factor(comp2, levels = levels(norm_counts_long$group_clean))))/2,
+                y = y_signif,
+                label = signif),
+            inherit.aes = FALSE, size = 3, color = "black") +
+  # p-values
+  geom_text(data = stat_results,
+            aes(x = (as.numeric(factor(comp1, levels = levels(norm_counts_long$group_clean))) +
+                       as.numeric(factor(comp2, levels = levels(norm_counts_long$group_clean))))/2,
+                y = y_pval,
+                label = paste0("p = ", signif(p_value,3))),
+            inherit.aes = FALSE, size = 3, color = "black") +
+  theme_bw() +
+  labs(
+    y = "Normalized counts",
+    x = "Group",
+    title = "Expression of selected genes with Wilcoxon test significance"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none"
+  )
+
+    
 #==================================================
 # Overrepresentation Analysis with clusterProfiler
 #==================================================
@@ -787,97 +944,118 @@ if (!requireNamespace("org.Mm.eg.db", quietly = TRUE))
 
 library(clusterProfiler)
 library(org.Mm.eg.db)
+library(ggplot2)
+library(stringr)
+library(dplyr)
 
 #====================================================
 # Overrepresentation Analysis: WT case vs WT control
 #====================================================
-
 #----------------------------
-# 2. Prepare gene lists
+# 1. Prepare gene lists
 #----------------------------
 
-# DE genes from previous step (filtered for padj < 0.05 & |log2FC| > 1)
-DE_genes <- rownames(res_sig_WT_control_vs_WT_case)
-all_genes <- rownames(res_WT_control_vs_WT_case)
+# DE genes for WT case vs WT control (flip contrast)
+DE_genes_WT <- rownames(res_sig_WT_case_vs_WT_control)
+all_genes_WT <- rownames(res_WT_case_vs_WT_control)
 
 # Remove any NA IDs
-DE_genes <- DE_genes[!is.na(DE_genes)]
-all_genes <- all_genes[!is.na(all_genes)]
+DE_genes_WT <- DE_genes_WT[!is.na(DE_genes_WT)]
+all_genes_WT <- all_genes_WT[!is.na(all_genes_WT)]
 
-# Optional checks
-cat("Number of DE genes:", length(DE_genes), "\n")
-cat("Number of all genes:", length(all_genes), "\n")
-head(DE_genes)
-head(all_genes)
+cat("Number of DE genes (WT case vs control):", length(DE_genes_WT), "\n")
+cat("Number of all genes (WT case vs control):", length(all_genes_WT), "\n")
+head(DE_genes_WT)
+head(all_genes_WT)
 
 #------------------------------------
-# 3. Run overrepresentation analysis
+# 2. Run overrepresentation analysis
 #------------------------------------
-ego <- enrichGO(
-  gene          = DE_genes,         # DE genes
-  universe      = all_genes,        # background genes
-  OrgDb         = org.Mm.eg.db,     # mouse annotation database
-  ont           = "ALL",             # GO category: BP, MF, CC, or ALL
-  keyType       = "ENSEMBL",        # our IDs are Ensembl
-  pAdjustMethod = "BH",             # multiple testing correction
-  pvalueCutoff  = 0.05,             # significance threshold
-  qvalueCutoff  = 0.05,             # FDR threshold
-  readable      = TRUE              # converts Ensembl IDs to gene symbols
+ego_WT <- enrichGO(
+  gene          = DE_genes_WT,
+  universe      = all_genes_WT,
+  OrgDb         = org.Mm.eg.db,
+  ont           = "ALL",
+  keyType       = "ENSEMBL",
+  pAdjustMethod = "BH",
+  pvalueCutoff  = 0.05,
+  qvalueCutoff  = 0.05,
+  readable      = TRUE
 )
 
 #----------------------------------
-# 4. Convert results to data frame
+# 3. Convert results to data frame
 #----------------------------------
-ego_df <- as.data.frame(ego)
+ego_WT_df <- as.data.frame(ego_WT)
 
-#------------------------------------------------
-# 5. Calculate GeneRatio and BgRatio numerically
-#------------------------------------------------
-# GeneRatio = DE genes in term / total DE genes
-ego_df$GeneRatioNum <- sapply(ego_df$GeneRatio, function(x) {
+# Calculate numeric GeneRatio and BgRatio
+ego_WT_df$GeneRatioNum <- sapply(ego_WT_df$GeneRatio, function(x) {
+  parts <- unlist(strsplit(x, "/"))
+  as.numeric(parts[1]) / as.numeric(parts[2])
+})
+ego_WT_df$BgRatioNum <- sapply(ego_WT_df$BgRatio, function(x) {
   parts <- unlist(strsplit(x, "/"))
   as.numeric(parts[1]) / as.numeric(parts[2])
 })
 
-# BgRatio = all genes in term / total background genes
-ego_df$BgRatioNum <- sapply(ego_df$BgRatio, function(x) {
-  parts <- unlist(strsplit(x, "/"))
-  as.numeric(parts[1]) / as.numeric(parts[2])
-})
+#------------------------------------
+# 4. Sort and select top 15 GO terms
+#------------------------------------
+ego_top_WT <- ego_WT@result %>%
+  arrange(desc(Count)) %>%    # largest gene counts first
+  slice(1:15)
 
-#----------------------------------------------
-# 6. Sort by adjusted p-value & extract top 10
-#----------------------------------------------
-top10_GO <- ego_df[order(ego_df$p.adjust), ][1:10,
-                                             c("ID", "Description", "GeneRatio", "GeneRatioNum",
-                                               "BgRatio", "BgRatioNum", "p.adjust")]
-top10_GO
+# Wrap long GO term descriptions
+ego_top_WT$Description_wrapped <- str_wrap(ego_top_WT$Description, width = 40)
 
-#----------------------------
-# 7. Visualize results
-#----------------------------
-# Dotplot
-dotplot(ego, showCategory=10, title="Top 10 enriched gene ontology terms for WT control vs WT case") +
-  theme(axis.text.y=element_text(size=10))
+# Set factor levels so largest dots appear at top
+ego_top_WT$Description_wrapped <- factor(
+  ego_top_WT$Description_wrapped,
+  levels = rev(ego_top_WT$Description_wrapped)
+)
+
+#------------------------------------
+# 5. Visualize top 15 GO terms
+#------------------------------------
+ggplot(ego_top_WT, aes(x = GeneRatio, y = Description_wrapped)) +
+  geom_point(aes(size = Count, color = p.adjust)) +
+  scale_color_continuous(low = "red", high = "blue", trans = "reverse") +
+  scale_size(range = c(3, 8)) +
+  theme_bw() +
+  labs(
+    title = "Top 15 enriched GO terms (WT case vs WT control)",
+    x = "Gene Ratio",
+    y = NULL,
+    color = "Adjusted p-value",
+    size = "Gene count"
+  ) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    axis.text.y = element_text(size = 10, hjust = 1),
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),  # vertical x-axis labels
+    legend.title = element_text(face = "bold"),
+    legend.position = "right",
+    plot.margin = margin(t = 10, r = 10, b = 10, l = 10)
+  )
 
 #=======================================================
-# Overrepresentation Analysis: DKO control vs DKO case
+# Overrepresentation Analysis: DKO case vs DKO control
 #=======================================================
 
 #----------------------------
 # 1. Prepare gene lists
 #----------------------------
-# DE genes for DKO control vs DKO case comparison
-DE_genes_DKO <- rownames(res_sig_DKO_control_vs_DKO_case)
-all_genes_DKO <- rownames(res_DKO_control_vs_DKO_case)
+# DE genes for DKO case vs DKO control comparison
+DE_genes_DKO <- rownames(res_sig_DKO_case_vs_DKO_control)
+all_genes_DKO <- rownames(res_DKO_case_vs_DKO_control)
 
 # Remove any NA IDs
 DE_genes_DKO <- DE_genes_DKO[!is.na(DE_genes_DKO)]
 all_genes_DKO <- all_genes_DKO[!is.na(all_genes_DKO)]
 
 # Optional checks
-cat("Number of DE genes (DKO):", length(DE_genes_DKO), "\n")
-cat("Number of all genes (DKO):", length(all_genes_DKO), "\n")
+cat("Number of DE genes (DKO case vs control):", length(DE_genes_DKO), "\n")
+cat("Number of all genes (DKO case vs control):", length(all_genes_DKO), "\n")
 head(DE_genes_DKO)
 head(all_genes_DKO)
 
@@ -912,9 +1090,9 @@ ego_DKO_df$BgRatioNum <- sapply(ego_DKO_df$BgRatio, function(x) {
 })
 
 #------------------------------------
-# 4. Sort and report top 10 GO terms
+# 4. Sort and report top 15 GO terms
 #------------------------------------
-top10_GO_DKO <- ego_DKO_df[order(ego_DKO_df$p.adjust), ][1:10,
+top10_GO_DKO <- ego_DKO_df[order(ego_DKO_df$p.adjust), ][1:15,
                                                          c("ID", "Description", "GeneRatio", "GeneRatioNum",
                                                            "BgRatio", "BgRatioNum", "p.adjust")]
 top10_GO_DKO
@@ -922,74 +1100,132 @@ top10_GO_DKO
 #----------------------------
 # 5. Visualize results
 #----------------------------
-dotplot(ego_DKO, showCategory=10, title="Top 10 enriched gene ontology terms for DKO control vs DKO case") +
-  theme(axis.text.y=element_text(size=10))
+library(ggplot2)
+library(stringr)
+library(dplyr)
 
-#==================================================
-# Overrepresentation Analysis: WT case vs DKO case
-#==================================================
+# Prepare top 15 terms
+ego_top <- ego_DKO@result %>%
+  arrange(desc(Count)) %>%      # largest gene counts first
+  slice(1:15)
 
-#-----------------------------------------------
-# 1. Prepare gene lists for WT case vs DKO case
-#-----------------------------------------------
-# DE genes for WT case vs DKO case comparison
-DE_genes_case <- rownames(res_sig_WT_case_vs_DKO_case)
-all_genes_case <- rownames(res_WT_case_vs_DKO_case)
+# Wrap long GO term descriptions
+ego_top$Description_wrapped <- str_wrap(ego_top$Description, width = 40)
+
+# Set factor levels so largest dots appear at top
+ego_top$Description_wrapped <- factor(
+  ego_top$Description_wrapped,
+  levels = rev(ego_top$Description_wrapped)
+)
+
+# Plot
+ggplot(ego_top, aes(x = GeneRatio, y = Description_wrapped)) +
+  geom_point(aes(size = Count, color = p.adjust)) +
+  scale_color_continuous(low = "red", high = "blue", trans = "reverse") +
+  scale_size(range = c(3, 8)) +
+  theme_bw() +
+  labs(
+    title = "Top 15 enriched GO terms (DKO case vs DKO control)",
+    x = "Gene Ratio",
+    y = NULL,
+    color = "Adjusted p-value",
+    size = "Gene count"
+  ) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    axis.text.y = element_text(size = 10, hjust = 1),
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),  # vertical x-axis labels
+    legend.title = element_text(face = "bold"),
+    legend.position = "right",
+    plot.margin = margin(t = 10, r = 10, b = 10, l = 10)
+  )
+
+#====================================================
+# Overrepresentation Analysis: DKO case vs WT case
+#====================================================
+
+#----------------------------
+# 1. Prepare gene lists
+#----------------------------
+DE_genes_DKOvsWT <- rownames(res_sig)            # significant DE genes
+all_genes_DKOvsWT <- rownames(res_DKO_case_vs_WT_case)  # all genes in contrast
 
 # Remove any NA IDs
-DE_genes_case <- DE_genes_case[!is.na(DE_genes_case)]
-all_genes_case <- all_genes_case[!is.na(all_genes_case)]
+DE_genes_DKOvsWT <- DE_genes_DKOvsWT[!is.na(DE_genes_DKOvsWT)]
+all_genes_DKOvsWT <- all_genes_DKOvsWT[!is.na(all_genes_DKOvsWT)]
 
-# Optional checks
-cat("Number of DE genes (WT vs DKO case):", length(DE_genes_case), "\n")
-cat("Number of all genes (WT vs DKO case):", length(all_genes_case), "\n")
-head(DE_genes_case)
-head(all_genes_case)
+cat("Number of DE genes (DKO case vs WT case):", length(DE_genes_DKOvsWT), "\n")
+cat("Number of all genes (DKO case vs WT case):", length(all_genes_DKOvsWT), "\n")
+head(DE_genes_DKOvsWT)
+head(all_genes_DKOvsWT)
 
 #------------------------------------
 # 2. Run overrepresentation analysis
 #------------------------------------
-ego_case <- enrichGO(
-  gene          = DE_genes_case,      # DE genes
-  universe      = all_genes_case,     # background genes
-  OrgDb         = org.Mm.eg.db,       # mouse annotation database
-  ont           = "ALL",               # GO category
-  keyType       = "ENSEMBL",          # our IDs are Ensembl
-  pAdjustMethod = "BH",               # multiple testing correction
-  pvalueCutoff  = 0.05,               # significance threshold
-  qvalueCutoff  = 0.05,               # FDR threshold
-  readable      = TRUE                # converts Ensembl IDs to gene symbols
+ego_DKOvsWT <- enrichGO(
+  gene          = DE_genes_DKOvsWT,
+  universe      = all_genes_DKOvsWT,
+  OrgDb         = org.Mm.eg.db,
+  ont           = "ALL",
+  keyType       = "ENSEMBL",
+  pAdjustMethod = "BH",
+  pvalueCutoff  = 0.05,
+  qvalueCutoff  = 0.05,
+  readable      = TRUE
 )
 
 #----------------------------------
 # 3. Convert results to data frame
 #----------------------------------
-ego_case_df <- as.data.frame(ego_case)
+ego_DKOvsWT_df <- as.data.frame(ego_DKOvsWT)
 
 # Calculate numeric GeneRatio and BgRatio
-ego_case_df$GeneRatioNum <- sapply(ego_case_df$GeneRatio, function(x) {
+ego_DKOvsWT_df$GeneRatioNum <- sapply(ego_DKOvsWT_df$GeneRatio, function(x) {
   parts <- unlist(strsplit(x, "/"))
   as.numeric(parts[1]) / as.numeric(parts[2])
 })
-ego_case_df$BgRatioNum <- sapply(ego_case_df$BgRatio, function(x) {
+ego_DKOvsWT_df$BgRatioNum <- sapply(ego_DKOvsWT_df$BgRatio, function(x) {
   parts <- unlist(strsplit(x, "/"))
   as.numeric(parts[1]) / as.numeric(parts[2])
 })
 
 #------------------------------------
-# 4. Sort and report top 10 GO terms
+# 4. Sort and select top 15 GO terms
 #------------------------------------
-top10_GO_case <- ego_case_df[order(ego_case_df$p.adjust), ][1:10,
-                                                            c("ID", "Description", "GeneRatio", "GeneRatioNum",
-                                                              "BgRatio", "BgRatioNum", "p.adjust")]
-top10_GO_case
+ego_top_DKOvsWT <- ego_DKOvsWT@result %>%
+  arrange(desc(Count)) %>%    # largest gene counts first
+  slice(1:15)
 
-#----------------------------
-# 5. Visualize results
-#----------------------------
-dotplot(ego_case, showCategory=10, title="Top 10 enriched gene ontology terms for WT case vs DKO case") +
-  theme(axis.text.y=element_text(size=10))
+# Wrap long GO term descriptions
+ego_top_DKOvsWT$Description_wrapped <- str_wrap(ego_top_DKOvsWT$Description, width = 40)
 
+# Set factor levels so largest dots appear at top
+ego_top_DKOvsWT$Description_wrapped <- factor(
+  ego_top_DKOvsWT$Description_wrapped,
+  levels = rev(ego_top_DKOvsWT$Description_wrapped)
+)
 
-
+#------------------------------------
+# 5. Visualize top 15 GO terms
+#------------------------------------
+ggplot(ego_top_DKOvsWT, aes(x = GeneRatio, y = Description_wrapped)) +
+  geom_point(aes(size = Count, color = p.adjust)) +
+  scale_color_continuous(low = "red", high = "blue", trans = "reverse") +
+  scale_size(range = c(3, 8)) +
+  theme_bw() +
+  labs(
+    title = "Top 15 enriched GO terms (DKO case vs WT case)",
+    x = "Gene Ratio",
+    y = NULL,
+    color = "Adjusted p-value",
+    size = "Gene count"
+  ) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    axis.text.y = element_text(size = 10, hjust = 1),
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),  # vertical x-axis labels
+    legend.title = element_text(face = "bold"),
+    legend.position = "right",
+    plot.margin = margin(t = 10, r = 10, b = 10, l = 10)
+  )
 
